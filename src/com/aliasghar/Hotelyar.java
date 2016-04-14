@@ -1,5 +1,6 @@
 package com.aliasghar;
 
+
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.crawler.Page;
@@ -9,6 +10,7 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.url.WebURL;
+import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -52,6 +54,7 @@ public class Hotelyar extends WebCrawler {
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase();
         return href.startsWith("http://en.hotelyar.com/city/");
+
     }
 
     @Override
@@ -69,6 +72,7 @@ public class Hotelyar extends WebCrawler {
             String hotelAddress=null;
             String hotelDistanceToAirport=null;
             String hotelFacilities=null;
+            String hotelImage=null;
             String date = Calendar.getInstance().getTime().toString();
             String place =url.split("/")[url.split("/").length-1].replace("-hotels","");
             String hotelName=null;
@@ -78,13 +82,12 @@ public class Hotelyar extends WebCrawler {
 
                 int e = doc.getElementsByClass("panel").size();
                 System.out.println(e);
-                for (int i=0;i<e;i++){
+                for (int i=1;i<e;i++){
                     System.out.println(i);
                     Element hotel=doc.getElementsByClass("panel").get(i);
                     Element elName=doc.getElementsByTag("h3").get(i);
-                    Element elAddress=doc.getElementsByClass("dl-horizontal").get(i+1);
-//                    System.out.println(elAddress.text());
-//                    System.out.println(elAddress.text());
+                    Element elAddress=doc.getElementsByClass("dl-horizontal").get(i);
+
                     try {
                         if (elAddress.getElementsByTag("dt").get(0).text().contains("Address")){
                             hotelAddress=elAddress.getElementsByTag("dt").get(0).nextElementSibling().text();
@@ -101,23 +104,25 @@ public class Hotelyar extends WebCrawler {
                             if (elAddress.getElementsByTag("dd").size()>2)
                             hoteldiscription=elAddress.getElementsByTag("dd").get(2).text();
                         }
-
+                        hotelImage=hotel.getElementsByTag("img").get(0).attr("src").replace("../","http://hotelyar.com/");
+                        System.out.println(hotelImage);
                         System.out.println(place);
                         System.out.println(hotelAddress);
                         System.out.println(hotelDistanceToAirport);
                         System.out.println(hotelFacilities);
                         System.out.println(hoteldiscription);
-                        hotelDistanceToAirport=null;
-                        hoteldiscription=null;
+                        indexer.add(place,hotelAddress,hotelDistanceToAirport,hotelFacilities,hoteldiscription);
+                        hotelDistanceToAirport=" ";
+                        hoteldiscription=" ";
+                        JSONObject jsonObject=new JSONObject();
+                        jsonObject.put("plae","asd");
+                        System.out.println(jsonObject);
+
 
                     }
                     catch (Exception ed){
                         ed.printStackTrace();
                     }
-//                    System.out.println(hotelDistanceToAirport);
-//                    System.out.println(hotelFacilities);
-//                    hoteldiscription=elAddress.getElementsByTag("dd").get(3).text();
-//                    System.out.println(hoteldiscription);
                 }
 
             } catch (Exception e) {
