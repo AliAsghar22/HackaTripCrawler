@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
  * Created by Taghizadeh on 13/04/2016.
  */
 public class KeyToPersia extends WebCrawler {
-    private static int maxPagesToFetch = 3000;
+    private static int maxPagesToFetch = 1000;
     private static int maxDepthOfCrawling = 10;
-    private static int numberOfCrawlers = 10;
+    private static int numberOfCrawlers = 5;
     static Indexer indexer;
     static TourJsonGenerator jsonGenerator;
 
@@ -43,6 +43,7 @@ public class KeyToPersia extends WebCrawler {
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
         controller.addSeed("http://en.key2persia.com/iran-tours/");
         controller.start(KeyToPersia.class, numberOfCrawlers);
+        jsonGenerator.close();
     }
 
 

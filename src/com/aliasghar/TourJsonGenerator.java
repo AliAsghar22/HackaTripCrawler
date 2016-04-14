@@ -1,5 +1,7 @@
 package com.aliasghar;
 
+import org.json.simple.JSONObject;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -40,6 +42,19 @@ public class TourJsonGenerator {
     }
     public synchronized void gen(int id, String name, int length, String imgURL, String discription, ArrayList<TourDetail> details){
 
+        JSONObject obj = new JSONObject();
+        obj.put("id", id);
+        obj.put("name", name);
+        obj.put("length", length);
+        obj.put("imageURL", imgURL);
+        obj.put("discription", discription);
+        obj.put("details", details);
+
+        try {
+            writer.write(obj.toJSONString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
