@@ -27,9 +27,10 @@ public class Hotelyar extends WebCrawler {
     private static int maxDepthOfCrawling = 1;
     private static int numberOfCrawlers = 1;
     static Indexer indexer;
-
+    static HotelJsonCreator jsonGenerator;
     public static void start() throws Exception {
         indexer = Indexer.getIndexer();
+        jsonGenerator = HotelJsonCreator.getHotelJsonCreator();
         String crawlStorageFolder = "crawler";
         CrawlConfig config = new CrawlConfig();
         config.setCrawlStorageFolder(crawlStorageFolder);
@@ -43,6 +44,7 @@ public class Hotelyar extends WebCrawler {
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
         controller.addSeed("http://en.hotelyar.com/city/11/tehran-hotels");
         controller.start(Hotelyar.class, numberOfCrawlers);
+        jsonGenerator.close();
     }
 
 
@@ -82,10 +84,11 @@ public class Hotelyar extends WebCrawler {
 
                 int e = doc.getElementsByClass("panel").size();
                 System.out.println(e);
-                for (int i=1;i<e;i++){
+                for (int i=1;i<e-1;i++){
                     System.out.println(i);
                     Element hotel=doc.getElementsByClass("panel").get(i);
                     Element elName=doc.getElementsByTag("h3").get(i);
+                    hotelName=elName.text();
                     Element elAddress=doc.getElementsByClass("dl-horizontal").get(i);
 
                     try {
@@ -111,11 +114,10 @@ public class Hotelyar extends WebCrawler {
                         System.out.println(hotelDistanceToAirport);
                         System.out.println(hotelFacilities);
                         System.out.println(hoteldiscription);
-                        indexer.add(place,hotelAddress,hotelDistanceToAirport,hotelFacilities,hoteldiscription);
+                        indexer.add(hotelName,place,hotelAddress,hotelDistanceToAirport,hotelFacilities,hoteldiscription,hotelImage);
+                        jsonGenerator.gen(hotelName,place,hotelAddress,hotelDistanceToAirport,hotelFacilities,hoteldiscription,hotelImage);
                         hotelDistanceToAirport=" ";
                         hoteldiscription=" ";
-
-                        jsonObject.put(hotelName,"{'place':'"+place+"','address':'"+hotelAddress+"'}");
                         System.out.println(jsonObject);
 
 

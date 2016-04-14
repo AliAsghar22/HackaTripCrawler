@@ -42,13 +42,15 @@ public class Indexer {
         w.close();
     }
 
-    public synchronized void add(String name,String place,String DistanceToAirport,String Facilities,String Description) throws IOException {
+    public synchronized void add(String name,String place,String address,String DistanceToAirport,String Facilities,String Description,String image) throws IOException {
         Document document=new Document();
         document.add(new TextField("Hname",name, Field.Store.YES));
         document.add(new TextField("Hplace",place, Field.Store.YES));
+        document.add(new TextField("Haddress",address, Field.Store.YES));
         document.add(new TextField("Hdistance",DistanceToAirport, Field.Store.YES));
         document.add(new TextField("HFacilities",Facilities, Field.Store.YES));
         document.add(new TextField("HFacilities",Description, Field.Store.YES));
+        document.add(new StringField("Himage",image, Field.Store.YES));
         w.addDocument(document);
 
     }
