@@ -20,8 +20,8 @@ import java.util.regex.Pattern;
  * Created by Taghizadeh on 13/04/2016.
  */
 public class KeyToPersia extends WebCrawler {
-    private static int maxPagesToFetch = 20000;
-    private static int maxDepthOfCrawling = 1;
+    private static int maxPagesToFetch = 1000;
+    private static int maxDepthOfCrawling = 5;
     private static int numberOfCrawlers = 1;
     static Indexer indexer;
 
@@ -38,19 +38,26 @@ public class KeyToPersia extends WebCrawler {
         RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
         RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
-        controller.addSeed("http://en.key2persia.com/iran-glories-of-persia-luxury-16-day-tour");
+        controller.addSeed("http://en.key2persia.com/iran-tours/");
         controller.start(KeyToPersia.class, numberOfCrawlers);
     }
 
 
     private final static String VISIT_PATTERN = ".*\\.(html||Aspx)";
     private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz))$");
+    private final static Pattern number = Pattern.compile("^(?=.*[0-9])$");
 
 
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase();
-        return href.startsWith("http://en.key2persia.com/") && href.contains("tour");
+        if(url.getAnchor() == null)
+            return false;
+        if(number.matcher(url.getAnchor()).matches() && !FILTERS.matcher(href).matches() && href.startsWith("http://en.key2persia.com/") && href.contains("tour")){
+            System.out.println(url.getAnchor());
+            return true;
+        }
+        return false ;
     }
 
     @Override
@@ -58,14 +65,14 @@ public class KeyToPersia extends WebCrawler {
 
 
         if (page.getParseData() instanceof HtmlParseData) {
-            System.out.println("visiting");
+//            System.out.println("visiting");
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             String html = htmlParseData.getHtml();
             org.jsoup.nodes.Document doc = Jsoup.parse(html);
 
             String url = page.getWebURL().getURL();
-            String title = null;
-            String discription = null;
+            String title = "";
+            String discription = "";
             String date = Calendar.getInstance().getTime().toString();
             String place = null;
             int days;
@@ -73,23 +80,34 @@ public class KeyToPersia extends WebCrawler {
 
 
             try {
-                System.out.println("getting page info");
-                Element e = doc.select("h1.page_title").get(0);
-                title = e.toString();
-                System.out.println("title: " + title);
-                while (e.hasText()){
+//                System.out.println("getting page info");
+                Element e = doc.select("h1.page-title").get(0);
+                title = e.text();
+                while (e.hasText()) {
+                    if (e.tagName().equals("ol")) {
+//                        System.out.println("break");
+                        break;
+                    }
+                    String t = "";
+                    String d = "";
+                    String imageURL = "";
                     e = e.nextElementSibling();
-                    if(e.hasClass("src")){
+                    if (e.toString().contains("src")) {
 
-                    }else{
-                        discription += e.toString();
+                        t = e.text();
+                        imageURL = e.getElementsByTag("img").get(0).attr("src");
+                        while (e.hasText() &&!e.nextElementSibling().toString().contains("src")) {
+                            e = e.nextElementSibling();
+//                            System.out.println("adding dic");
+                            d += e.text();
+                        }
                     }
                 }
 
-                System.out.println("discription: " + discription);
+
 
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println("KeyToPersia: Unrelated Page");
             }
 
         }
