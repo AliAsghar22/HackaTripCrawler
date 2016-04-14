@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Created by Taghizadeh on 13/04/2016.
  */
 public class KeyToPersia extends WebCrawler {
-    private static int maxPagesToFetch = 1000;
+    private static int maxPagesToFetch = 100;
     private static int maxDepthOfCrawling = 10;
     private static int numberOfCrawlers = 5;
     static Indexer indexer;
@@ -69,7 +69,9 @@ public class KeyToPersia extends WebCrawler {
 
 
         if (page.getParseData() instanceof HtmlParseData) {
-//            System.out.println("visiting");
+            if(page.getWebURL().toString().equals("http://en.key2persia.com/iran-tours/"))
+                return;
+                //            System.out.println("visiting");
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             String html = htmlParseData.getHtml();
             org.jsoup.nodes.Document doc = Jsoup.parse(html);
@@ -87,31 +89,30 @@ public class KeyToPersia extends WebCrawler {
 
 
             try {
-//                System.out.println("getting page info");
                 Element e = doc.select("h1.page-title").get(0);
                 title = e.text();
                 while (e.hasText()) {
                     if (e.tagName().equals("ol")) {
-//                        System.out.println("break");
                         break;
                     }
-
                     e = e.nextElementSibling();
-                    if (e.toString().contains("src")) {
-
+                    d = "";
+                    if (e.toString().contains("src") && e.toString().contains("Day")) {
                         t = e.text();
                         imageURL = e.getElementsByTag("img").get(0).attr("src");
-                        while (e.hasText() &&!e.nextElementSibling().toString().contains("src")) {
-                            e = e.nextElementSibling();
-//                            System.out.println("adding dic");
+                        while (e.hasText() && !e.nextElementSibling().toString().contains("src")) {
                             d += e.text();
+                            e = e.nextElementSibling();
                         }
-                    }
 
+                        tourDetail.add(new TourDetail(t, d, imageURL));
+                    }else
+                        discription += e.text();
 
                 }
 
-                jsonGenerator.gen(IDGenerator.gen(), title, 0, imageURL, discription, tourDetail);
+                jsonGenerator.gen(IDGenerator.gen(), title, 0, url.replace("/" ,"\\" ), discription, tourDetail);
+
 
             } catch (Exception e) {
                 System.err.println("KeyToPersia: Unrelated Page");

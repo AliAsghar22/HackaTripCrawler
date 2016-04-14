@@ -5,7 +5,7 @@ package com.aliasghar;
  */
 public class IDGenerator {
     static int current = 0;
-    public static int gen(){
+    public synchronized static int gen(){
         return current++;
     }
 }
