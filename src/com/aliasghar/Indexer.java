@@ -50,5 +50,6 @@ public class Indexer {
         document.add(new TextField("HFacilities",Facilities, Field.Store.YES));
         document.add(new TextField("HFacilities",Description, Field.Store.YES));
         w.addDocument(document);
+
     }
 }
