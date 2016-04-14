@@ -28,6 +28,7 @@ public class Hotelyar extends WebCrawler {
     private static int numberOfCrawlers = 1;
     static Indexer indexer;
     static HotelJsonCreator jsonGenerator;
+
     public static void start() throws Exception {
         indexer = Indexer.getIndexer();
         jsonGenerator = HotelJsonCreator.getHotelJsonCreator();
@@ -43,6 +44,7 @@ public class Hotelyar extends WebCrawler {
         RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
         controller.addSeed("http://en.hotelyar.com/city/11/tehran-hotels");
+        controller.addSeed("http://en.hotelyar.com/city/29/yazd-hotels");
         controller.start(Hotelyar.class, numberOfCrawlers);
         jsonGenerator.close();
     }
@@ -50,20 +52,19 @@ public class Hotelyar extends WebCrawler {
 
     private final static String VISIT_PATTERN = ".*\\.(html||Aspx)";
     private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz))$");
-    private final static Pattern number=Pattern.compile("[0-9]{1,2}");
+    private final static Pattern number = Pattern.compile("[0-9]{1,2}");
 
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase();
         return href.startsWith("http://en.hotelyar.com/city/");
-
     }
 
     @Override
     public void visit(Page page) {
 
 
-        if (page.getParseData() instanceof HtmlParseData && page.getWebURL().getURL().contains("city")&& page.getWebURL().getURL().contains("tehran")) {
+        if (page.getParseData() instanceof HtmlParseData && page.getWebURL().getURL().contains("city")) {
             System.out.println(page.getWebURL());
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             String html = htmlParseData.getHtml();
@@ -71,58 +72,58 @@ public class Hotelyar extends WebCrawler {
 
             String url = page.getWebURL().getURL();
             String hoteldiscription = null;
-            String hotelAddress=null;
-            String hotelDistanceToAirport=null;
-            String hotelFacilities=null;
-            String hotelImage=null;
+            String hotelAddress = null;
+            String hotelDistanceToAirport = null;
+            String hotelFacilities = null;
+            String hotelImage = null;
             String date = Calendar.getInstance().getTime().toString();
-            String place =url.split("/")[url.split("/").length-1].replace("-hotels","");
-            String hotelName=null;
+            String place = url.split("/")[url.split("/").length - 1].replace("-hotels", "");
+            String hotelName = null;
+            String stars = null;
             int days;
-            JSONObject jsonObject=new JSONObject();
+            JSONObject jsonObject = new JSONObject();
             try {
 
                 int e = doc.getElementsByClass("panel").size();
                 System.out.println(e);
-                for (int i=1;i<e-1;i++){
+                for (int i = 1; i < e - 1; i++) {
                     System.out.println(i);
-                    Element hotel=doc.getElementsByClass("panel").get(i);
-                    Element elName=doc.getElementsByTag("h3").get(i);
-                    hotelName=elName.text();
-                    Element elAddress=doc.getElementsByClass("dl-horizontal").get(i);
+                    Element hotel = doc.getElementsByClass("panel").get(i);
+                    Element elName = doc.getElementsByTag("h3").get(i);
+                    hotelName = elName.text();
+                    Element elAddress = doc.getElementsByClass("dl-horizontal").get(i);
 
                     try {
-                        if (elAddress.getElementsByTag("dt").get(0).text().contains("Address")){
-                            hotelAddress=elAddress.getElementsByTag("dt").get(0).nextElementSibling().text();
+                        if (elAddress.getElementsByTag("dt").get(0).text().contains("Address")) {
+                            hotelAddress = elAddress.getElementsByTag("dt").get(0).nextElementSibling().text();
                         }
-                        boolean hasDistance=elAddress.getElementsByTag("dt").get(1).text().contains("Distance");
-                        if(hasDistance){
-                            hotelDistanceToAirport=elAddress.getElementsByTag("dd").get(1).text();
-                            hotelFacilities=elAddress.getElementsByTag("dd").get(2).text();
+                        boolean hasDistance = elAddress.getElementsByTag("dt").get(1).text().contains("Distance");
+                        if (hasDistance) {
+                            hotelDistanceToAirport = elAddress.getElementsByTag("dd").get(1).text();
+                            hotelFacilities = elAddress.getElementsByTag("dd").get(2).text();
                             if (elAddress.getElementsByTag("dt").get(3).text().contains("Description"))
-                            hoteldiscription=elAddress.getElementsByTag("dd").get(3).text();
+                                hoteldiscription = elAddress.getElementsByTag("dd").get(3).text();
+                        } else {
+                            hotelFacilities = elAddress.getElementsByTag("dd").get(1).text();
+                            if (elAddress.getElementsByTag("dd").size() > 2)
+                                hoteldiscription = elAddress.getElementsByTag("dd").get(2).text();
                         }
-                        else{
-                            hotelFacilities=elAddress.getElementsByTag("dd").get(1).text();
-                            if (elAddress.getElementsByTag("dd").size()>2)
-                            hoteldiscription=elAddress.getElementsByTag("dd").get(2).text();
-                        }
-                        hotelImage=hotel.getElementsByTag("img").get(0).attr("src").replace("../","http://hotelyar.com/");
+                        hotelImage = hotel.getElementsByTag("img").get(0).attr("src").replace("../", "http://hotelyar.com/");
+                        stars = hotel.getElementsByAttributeValueContaining("class", "starico").attr("class").replace("starico star", "");
                         System.out.println(hotelImage);
                         System.out.println(place);
                         System.out.println(hotelAddress);
                         System.out.println(hotelDistanceToAirport);
                         System.out.println(hotelFacilities);
                         System.out.println(hoteldiscription);
-                        indexer.add(hotelName,place,hotelAddress,hotelDistanceToAirport,hotelFacilities,hoteldiscription,hotelImage);
-                        jsonGenerator.gen(hotelName,place,hotelAddress,hotelDistanceToAirport,hotelFacilities,hoteldiscription,hotelImage);
-                        hotelDistanceToAirport=" ";
-                        hoteldiscription=" ";
-                        System.out.println(jsonObject);
+                        indexer.add(hotelName, place, hotelAddress, hotelDistanceToAirport, hotelFacilities, hoteldiscription, hotelImage, Integer.parseInt(stars),url);
+                        jsonGenerator.gen(hotelName, place, hotelAddress, hotelDistanceToAirport, hotelFacilities, hoteldiscription, hotelImage, (Integer.parseInt(stars)),url);
+                        hotelDistanceToAirport = " ";
+                        hoteldiscription = " ";
+//                        System.out.println(jsonObject);
 
 
-                    }
-                    catch (Exception ed){
+                    } catch (Exception ed) {
                         ed.printStackTrace();
                     }
                 }

@@ -50,7 +50,7 @@ public class HotelJsonCreator {
         return gen;
 
     }
-    public synchronized void gen(String name,String place,String address,String DistanceToAirport,String Facilities,String Description,String image){
+    public synchronized void gen(String name,String place,String address,String DistanceToAirport,String Facilities,String Description,String image,int stars,String url){
         JSONObject Subobj = new JSONObject();
         Subobj.put("place",place);
         Subobj.put("address",address);
@@ -58,6 +58,8 @@ public class HotelJsonCreator {
         Subobj.put("Facilities",Facilities);
         Subobj.put("Description",Description);
         Subobj.put("image",image);
+        Subobj.put("stars",stars);
+        Subobj.put("url",url);
         obj.put(name,Subobj);
 
 
