@@ -77,7 +77,7 @@ public class Hotelyar extends WebCrawler {
             String place =url.split("/")[url.split("/").length-1].replace("-hotels","");
             String hotelName=null;
             int days;
-
+            JSONObject jsonObject=new JSONObject();
             try {
 
                 int e = doc.getElementsByClass("panel").size();
@@ -114,8 +114,8 @@ public class Hotelyar extends WebCrawler {
                         indexer.add(place,hotelAddress,hotelDistanceToAirport,hotelFacilities,hoteldiscription);
                         hotelDistanceToAirport=" ";
                         hoteldiscription=" ";
-                        JSONObject jsonObject=new JSONObject();
-                        jsonObject.put("plae","asd");
+
+                        jsonObject.put(i,"['place'='"+place+"','address'='"+hotelAddress+"']");
                         System.out.println(jsonObject);
 
 
