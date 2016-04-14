@@ -20,13 +20,16 @@ import java.util.regex.Pattern;
  * Created by Taghizadeh on 13/04/2016.
  */
 public class KeyToPersia extends WebCrawler {
-    private static int maxPagesToFetch = 1000;
-    private static int maxDepthOfCrawling = 5;
-    private static int numberOfCrawlers = 1;
+    private static int maxPagesToFetch = 3000;
+    private static int maxDepthOfCrawling = 10;
+    private static int numberOfCrawlers = 10;
     static Indexer indexer;
+    static TourJsonGenerator jsonGenerator;
 
     public static void start() throws Exception {
         indexer = Indexer.getIndexer();
+        jsonGenerator = TourJsonGenerator.getTourJsonGenarator();
+
         String crawlStorageFolder = "crawler";
         CrawlConfig config = new CrawlConfig();
         config.setCrawlStorageFolder(crawlStorageFolder);
@@ -45,7 +48,7 @@ public class KeyToPersia extends WebCrawler {
 
     private final static String VISIT_PATTERN = ".*\\.(html||Aspx)";
     private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz))$");
-    private final static Pattern number = Pattern.compile("^(?=.*[0-9])$");
+    private final static Pattern number = Pattern.compile(".*[0-9].*");
 
 
     @Override
@@ -76,6 +79,9 @@ public class KeyToPersia extends WebCrawler {
             String date = Calendar.getInstance().getTime().toString();
             String place = null;
             int days;
+            String t = "";
+            String d = "";
+            String imageURL = "";
             ArrayList<TourDetail> tourDetail = new ArrayList<>();
 
 
@@ -88,9 +94,7 @@ public class KeyToPersia extends WebCrawler {
 //                        System.out.println("break");
                         break;
                     }
-                    String t = "";
-                    String d = "";
-                    String imageURL = "";
+
                     e = e.nextElementSibling();
                     if (e.toString().contains("src")) {
 
@@ -102,9 +106,11 @@ public class KeyToPersia extends WebCrawler {
                             d += e.text();
                         }
                     }
+
+
                 }
 
-
+                jsonGenerator.gen(IDGenerator.gen(), title, 0, imageURL, discription, tourDetail);
 
             } catch (Exception e) {
                 System.err.println("KeyToPersia: Unrelated Page");
