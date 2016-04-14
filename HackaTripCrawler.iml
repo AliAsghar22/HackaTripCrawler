@@ -10,6 +10,6 @@
     <orderEntry type="library" name="edu.uci.ics:crawler4j:4.2" level="project" />
     <orderEntry type="library" name="jsoup-1.8.3" level="project" />
     <orderEntry type="library" name="slf4j-simple-1.7.13" level="project" />
-    <orderEntry type="library" name="com.google.code.gson:gson:2.6.2" level="project" />
+    <orderEntry type="library" name="com.googlecode.json-simple:json-simple:1.1.1" level="project" />
   </component>
 </module>

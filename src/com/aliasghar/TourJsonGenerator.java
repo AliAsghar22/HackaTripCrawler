@@ -1,12 +1,8 @@
 package com.aliasghar;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 
 /**
@@ -14,7 +10,7 @@ import java.util.ArrayList;
  */
 public class TourJsonGenerator {
     static TourJsonGenerator gen;
-    static Writer writer;
+    static FileWriter writer;
     private TourJsonGenerator(){
         File f = new File("tours.json");
 
@@ -43,13 +39,8 @@ public class TourJsonGenerator {
 
     }
     public synchronized void gen(int id, String name, int length, String imgURL, String discription, ArrayList<TourDetail> details){
-        Gson gson = new GsonBuilder().create();
-        gson.toJson(id, writer);
-        gson.toJson(name, writer);
-        gson.toJson(length, writer);
-        gson.toJson(imgURL, writer);
-        gson.toJson(discription, writer);
-        gson.toJson(details, writer);
+
+
 
     }
 }
