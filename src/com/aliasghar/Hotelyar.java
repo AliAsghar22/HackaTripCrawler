@@ -115,7 +115,7 @@ public class Hotelyar extends WebCrawler {
                         hotelDistanceToAirport=" ";
                         hoteldiscription=" ";
 
-                        jsonObject.put(i,"['place'='"+place+"','address'='"+hotelAddress+"']");
+                        jsonObject.put(hotelName,"{'place':'"+place+"','address':'"+hotelAddress+"'}");
                         System.out.println(jsonObject);
 
 
